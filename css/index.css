@@ -1,0 +1,22 @@
+body {
+    background-color: #9cddf5;
+    /* font-style: italic; */
+}
+a {
+    color: black;
+    font-size: 30;
+    /* 去除下划线 */
+    text-decoration: none;
+}
+h1 {
+    color: #c48a16;
+}
+p.fish1 {
+    color: #f80143;
+}
+p.fish2 {
+    color: #5b1846;
+}
+.fish {
+    color: #eee309;
+}
