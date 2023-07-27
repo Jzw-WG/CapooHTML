@@ -57,8 +57,10 @@ var chessView = {
             if (capooCardsInPreparation[i]) {
                 let type = capooCardsInPreparation[i].type;
                 precard.setAttribute("src", "img/chess/" + type + ".gif");
+                precard.setAttribute("class", "border" + capooCardsInPreparation[i].level);
             } else {
                 precard.setAttribute("src", "img/chess/X.gif");
+                precard.setAttribute("class", "border" + 0);
             }
         }
     },
@@ -88,7 +90,7 @@ function chessInit() {
     for (let i = 0; i < chessModel.preparationSize; i++) {
         let preTd = preTr.insertCell(i);
         preTd.setAttribute("id", "pre_" + i);
-        preTd.innerHTML = '<img id="preimg_' + i + '" src="img/chess/X.gif">';
+        preTd.innerHTML = '<img id="preimg_' + i + '" src="img/chess/X.gif" class="border0">';
         preTd.addEventListener("click", 
         function() {
             sell(i);
@@ -107,46 +109,6 @@ function chessInit() {
         false);
     }
     chessModel.generateShopCapoo();
-}
-
-function buy(index) {
-    let card = capooCardsInShop[index];
-    console.log("buy");
-    if (index < 0 || card.type == "X") {
-        return;
-    }
-    let canBuy = checkBuy(card);
-    if (canBuy == 1) {
-        // checkCombine(card);
-        moneyChange(-1 * card.price);
-        capooCardsInShop[index] = new Capoo("X",0,0);
-        chessView.displayShopCard(index, new Capoo("X",0,0));
-        capooCardsInPreparation.push(card);
-        chessView.displayPreCard();
-        checkAndCombine();
-    } else if (canBuy == 2) {
-        
-        checkAndCombine();
-    } else {
-        // 增加提示
-    }
-}
-
-function checkBuy(capoo) {
-    if (money < 1) {
-        return 0;
-    }
-    // 备战席是否存在空位
-    let hasEmptyInPreparation = capooCardsInPreparation.length < chessModel.preparationSize;
-    if (hasEmptyInPreparation) {
-        return 1;
-    }
-    // 备战席满，但是与商店的capoo总和可以合成
-    let combineWhenFullPreparation = capooCardsInPreparation.length === chessModel.preparationSize && checkCombine(capoo.type);
-    if (combineWhenFullPreparation) {
-        return 2;
-    }
-    return 0;
 }
 
 function sell(index) {
@@ -171,13 +133,70 @@ function sell(index) {
     chessView.displayPreCard();
 }
 
+function buy(index) {
+    let card = capooCardsInShop[index];
+    console.log("buy");
+    if (index < 0 || card.type == "X") {
+        return;
+    }
+    let canBuy = checkBuy(card);
+    if (canBuy > 0) {
+        // 购买点击位置的卡
+        moneyChange(-1 * card.price);
+        capooCardsInShop[index] = new Capoo("X",0,0);
+        chessView.displayShopCard(index, new Capoo("X",0,0));
+        capooCardsInPreparation.push(card);
+        // 购买剩余同类卡
+        let buyWhenFull = 1;
+        let i = 0;
+        while (canBuy > 1 && buyWhenFull <= canBuy && i < chessModel.shopSize) {
+            if (i == index) {
+                i++;
+                continue;
+            }
+            console.log(canBuy + "," + buyWhenFull + "," + i);
+            if (capooCardsInShop[i].type == card.type) {
+                moneyChange(-1 * card.price);
+                let cardi = capooCardsInShop[i];
+                capooCardsInShop[i] = new Capoo("X",0,0);
+                chessView.displayShopCard(i, new Capoo("X",0,0));
+                capooCardsInPreparation.push(cardi);
+                buyWhenFull++;
+            }
+            i++;
+        }
+        chessView.displayPreCard();
+        checkAndCombine();
+    } else {
+        // 增加提示
+    }
+}
+
+function checkBuy(capoo) {
+    if (money < 1) {
+        return 0;
+    }
+    // 备战席是否存在空位
+    let hasEmptyInPreparation = capooCardsInPreparation.length < chessModel.preparationSize;
+    if (hasEmptyInPreparation) {
+        return 1;
+    }
+    // 备战席满，但是与商店的capoo总和可以合成
+    let canCombine = checkCombine(capoo.type);
+    let combineWhenFullPreparation = capooCardsInPreparation.length === chessModel.preparationSize && canCombine > 0;
+    if (combineWhenFullPreparation) {
+        return canCombine;
+    }
+    return 0;
+}
+
 function checkCombine(type) {
     let cardsInPre = capooCardsInPreparation.filter(element => element.type == type && element.level == 1);
     let cardsInShop = capooCardsInShop.filter(element => element.type == type);
     if (cardsInPre.length + cardsInShop.length >= 3) {
-        return true;
+        return 3 - cardsInPre.length;
     }
-    return false;
+    return 0;
 }
 
 function checkAndCombine() {

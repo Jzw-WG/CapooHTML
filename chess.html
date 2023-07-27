@@ -2,23 +2,7 @@
 <html>
     <head>
         <title>CapooChess</title>
-        <style>
-            body {
-                background-color: rgb(114, 191, 250);
-            }
-            table#preparation {
-                height: 60px;
-            }
-            table#shop {
-                height: 60px;
-            }
-            tr#pretr {
-                border: 2px solid black;
-            }
-            tr#shoptr {
-                border: 2px solid black;
-            }
-        </style>
+        <link type="text/css" rel="stylesheet" href="css/chess.css">
         <script src="js/capooChessInit.js"></script>
     </head>
     <body>
@@ -35,11 +19,13 @@
         </div>
 
         <div id="board_buy_button">
-            <img src="img/chess/fresh.gif" onclick="fresh()">
+            <h3>
+                刷新<img style="vertical-align: middle" src="img/chess/fresh.gif" onclick="fresh()">
+            </h3>
         </div>
 
         <div id="money">
-            <a id="moneyvalue"></a>
+            <h1 id="moneyvalue"></h1>
         </div>
         <!-- <script src="js/capooChess.js"></script> -->
     </body>
