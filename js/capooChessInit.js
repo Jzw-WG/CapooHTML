@@ -265,3 +265,8 @@ function fresh() {
 }
 
 window.onload = chessInit;
+document.onkeydown = function (e) {
+    if (e.key == "d") {
+        fresh();
+    }
+}
