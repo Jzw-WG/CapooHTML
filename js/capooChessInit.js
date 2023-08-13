@@ -1,8 +1,15 @@
+const ruleJson = {
+    "N1":"经典模式",
+    "mode1":"尽情的购买和合成，但是只有200块钱。",
+    "N2":"快速模式",
+    "mode2":"你只有30s的时间合成指定咖啵。",
+}
 
 var time = 70*1000;
 
 var money = 200;
 
+var rule = 2;
 
 var capooCardsInPool = [];
 
@@ -71,12 +78,35 @@ var chessView = {
     displayMoney: function() {
         let m = document.getElementById("moneyvalue");
         m.innerHTML = money;
+    },
+    displayRule: function() {
+        let r = document.getElementById("ruletitle");
+        r.innerHTML = getRule(rule);
+        let rt = document.getElementById("ruletext");
+        rt.innerHTML = getRuleText(rule);
+        chessRule.initRule2();
+    }
+}
+
+var chessRule = {
+    timeleft: 30,
+    initRule2: function() {
+        this.displayTime();
+        setInterval(() => {
+            this.displayTime();
+            this.timeleft--;
+        }, 1000);
+    },
+    displayTime: function() {
+        let t = document.getElementById("timeleft");
+        t.innerHTML = chessRule.time;
     }
 }
 
 // 初始化
 function chessInit() {
     chessView.displayMoney();
+    chessView.displayRule();
     capooCardsInPreparation = [];
     capooCardsInPool = [];
     // 卡池重置
@@ -262,6 +292,14 @@ function fresh() {
         moneyChange(-1 * chessModel.freshPrice);
         chessModel.generateShopCapoo();
     }
+}
+
+function getRule(rule) {
+    return ruleJson["N" + rule];
+}
+
+function getRuleText(rule) {
+    return ruleJson["mode" + rule];
 }
 
 window.onload = chessInit;
