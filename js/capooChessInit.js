@@ -1,11 +1,17 @@
 const ruleJson = {
+    "N0":"大成功！！！",
+    "mode0":"挑战成功，请选择其他挑战或再来一把QwQ。",
+    "N-1":"游戏结束",
+    "mode-1":"挑战失败，请重新开始。",
     "N1":"经典模式",
     "mode1":"尽情的购买和合成，但是只有200块钱。",
     "N2":"快速模式",
     "mode2":"你只有30s的时间合成指定咖啵。",
 }
+const WIN = 0;
+const LOSE = -1;
 
-var time = 70*1000;
+const time = 30;
 
 var money = 200;
 
@@ -79,27 +85,69 @@ var chessView = {
         let m = document.getElementById("moneyvalue");
         m.innerHTML = money;
     },
+    displayTime: function() {
+        let t = document.getElementById("timeleft");
+        t.innerHTML = chessRule.timeleft;
+    },
     displayRule: function() {
         let r = document.getElementById("ruletitle");
-        r.innerHTML = getRule(rule);
+        r.innerHTML = chessRule.getRule(rule);
         let rt = document.getElementById("ruletext");
-        rt.innerHTML = getRuleText(rule);
-        chessRule.initRule2();
+        rt.innerHTML = chessRule.getRuleText(rule);
+        if (rule == 2) {
+            chessRule.initRule2();
+        }
+    },
+    displayResult: function(result) {
+        if (result == undefined || result == null) {
+            return;
+        }
+        let r = document.getElementById("ruletitle");
+        r.innerHTML = chessRule.getRule(result);
+        let rt = document.getElementById("ruletext");
+        rt.innerHTML = chessRule.getRuleText(result);
     }
 }
 
 var chessRule = {
     timeleft: 30,
     initRule2: function() {
-        this.displayTime();
-        setInterval(() => {
-            this.displayTime();
-            this.timeleft--;
+        chessView.displayTime();
+        var timeout = setInterval(() => {
+            this.checkWinOrLose(rule);
+            if (this.timeleft > 0) {
+                this.timeleft--;
+                chessView.displayTime();
+            } else {
+                clearInterval(timeout);
+            }
         }, 1000);
     },
-    displayTime: function() {
-        let t = document.getElementById("timeleft");
-        t.innerHTML = chessRule.time;
+
+    getRule: function(rule) {
+        return ruleJson["N" + rule];
+    },
+    getRuleText: function(rule) {
+        return ruleJson["mode" + rule];
+    },
+    checkWinOrLose: function (rule) {
+        let result;
+        if (rule == 2) {
+            if (this.timeleft <= 0) {
+                result = LOSE;
+            }
+            // TODO:可优化
+            for (let i = 0; i < capooCardsInPreparation.length; i++) {
+                const card = capooCardsInPreparation[i];
+                if (card.level == 3) {
+                    result = WIN;
+                    clearInterval(timeout);
+                    break;
+                }
+            }
+        }
+        chessView.displayResult(result);
+        return result;
     }
 }
 
@@ -294,13 +342,7 @@ function fresh() {
     }
 }
 
-function getRule(rule) {
-    return ruleJson["N" + rule];
-}
 
-function getRuleText(rule) {
-    return ruleJson["mode" + rule];
-}
 
 window.onload = chessInit;
 document.onkeydown = function (e) {
