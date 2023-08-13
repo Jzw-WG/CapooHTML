@@ -83,11 +83,11 @@ var chessView = {
     },
     displayMoney: function() {
         let m = document.getElementById("moneyvalue");
-        m.innerHTML = money;
+        m.innerHTML = "金币： " + money;
     },
     displayTime: function() {
         let t = document.getElementById("timeleft");
-        t.innerHTML = chessRule.timeleft;
+        t.innerHTML = "剩余时间： " + chessRule.timeleft;
     },
     displayRule: function() {
         let r = document.getElementById("ruletitle");
@@ -95,7 +95,12 @@ var chessView = {
         let rt = document.getElementById("ruletext");
         rt.innerHTML = chessRule.getRuleText(rule);
         if (rule == 2) {
-            chessRule.initRule2();
+            let t = document.getElementById("ruletarget");
+            t.innerHTML = "目标";
+            let ri = document.getElementById("ruleimg");
+            let randtarget = Math.floor(Math.random() * chessModel.capooTypes);
+            ri.innerHTML = '<img style="vertical-align: middle" src="img/chess/' + randtarget + '.gif">';
+            chessRule.initRule2(randtarget);
         }
     },
     displayResult: function(result) {
@@ -111,15 +116,18 @@ var chessView = {
 
 var chessRule = {
     timeleft: 30,
-    initRule2: function() {
+    timeout: null,
+    type: null,
+    initRule2: function(type) {
+        this.type = type;
         chessView.displayTime();
-        var timeout = setInterval(() => {
+        this.timeout = setInterval(() => {
             this.checkWinOrLose(rule);
             if (this.timeleft > 0) {
                 this.timeleft--;
                 chessView.displayTime();
             } else {
-                clearInterval(timeout);
+                clearInterval(this.timeout);
             }
         }, 1000);
     },
@@ -139,9 +147,9 @@ var chessRule = {
             // TODO:可优化
             for (let i = 0; i < capooCardsInPreparation.length; i++) {
                 const card = capooCardsInPreparation[i];
-                if (card.level == 3) {
+                if (card.level == 3 && card.type == chessRule.type) {
                     result = WIN;
-                    clearInterval(timeout);
+                    clearInterval(chessRule.timeout);
                     break;
                 }
             }
