@@ -89,7 +89,12 @@ var chessView = {
         let t = document.getElementById("timeleft");
         t.innerHTML = "剩余时间： " + chessRule.timeleft;
     },
+    // displayRuleList: function() {
+    //     let ar = document.getElementById("allrules");
+    // },
     displayRule: function() {
+        let s = document.getElementById("selectrule");
+        s.innerHTML = "";
         let r = document.getElementById("ruletitle");
         r.innerHTML = chessRule.getRule(rule);
         let rt = document.getElementById("ruletext");
@@ -111,6 +116,8 @@ var chessView = {
         r.innerHTML = chessRule.getRule(result);
         let rt = document.getElementById("ruletext");
         rt.innerHTML = chessRule.getRuleText(result);
+        let s = document.getElementById("selectrule");
+        s.innerHTML = "重新开始";
     }
 }
 
@@ -119,6 +126,7 @@ var chessRule = {
     timeout: null,
     type: null,
     initRule2: function(type) {
+        this.timeleft = time;
         this.type = type;
         chessView.displayTime();
         this.timeout = setInterval(() => {
@@ -162,7 +170,7 @@ var chessRule = {
 // 初始化
 function chessInit() {
     chessView.displayMoney();
-    chessView.displayRule();
+    // chessView.displayRule();
     capooCardsInPreparation = [];
     capooCardsInPool = [];
     // 卡池重置
@@ -194,7 +202,33 @@ function chessInit() {
         }, 
         false);
     }
+    // 初始化模式
+    let selectRule = document.getElementById("selectrule");
+    selectRule.innerHTML = "开始";
+    selectRule.addEventListener("click", 
+    function() {
+        initCards();
+        chessModel.generateShopCapoo();
+        chessView.displayRule();
+    }, 
+    false);
     chessModel.generateShopCapoo();
+}
+
+function initCards() {
+    money = 200;
+    capooCardsInPreparation = [];
+    capooCardsInPool = [];
+    capooCardsInShop = [new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0)];
+    // 卡池重置
+    for (let i = 0; i < chessModel.capooTypes; i++) {
+        for (let j = 0; j < chessModel.cardsNumPreCapoo; j++) {
+            capooCardsInPool.push(new Capoo(String(i), 1, 1));
+        }
+    }
+    chessView.displayMoney();
+    chessView.displayPreCard();
+    // chessView.displayShopCard();
 }
 
 function sell(index) {
