@@ -34,3 +34,6 @@ tr#shoptr {
 .border3 {
     border: 3px solid gold;
 }
+.forbiden {
+    pointer-events: none;
+}

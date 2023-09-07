@@ -8,17 +8,33 @@ const ruleJson = {
     "N2":"快速模式",
     "mode2":"你只有30s的时间合成指定咖啵。",
 }
+// 游戏结果
 const WIN = 0;
 const LOSE = -1;
 
+// 状态
+const STOP = 0;
+const GAMING = 1;
+const PAUSE = 2; 
+
+// 切换状态的行为
+const DO_START = 0;
+const DO_PAUSE = 1;
+const DO_RESUME = 2;
+const DO_STOP = 3;
+
+// 默认游戏时长
 const time = 30;
 
+// 金额
 var money = 200;
 
 var rule = 2;
 
+// 卡池
 var capooCardsInPool = [];
 
+// 备战席
 var capooCardsInPreparation = [];
 
 class Capoo {
@@ -34,7 +50,7 @@ class Capoo {
     }
 }
 
-
+// 商店
 var capooCardsInShop = [new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0)];
 
 var chessModel = {
@@ -118,10 +134,24 @@ var chessView = {
         rt.innerHTML = chessRule.getRuleText(result);
         let s = document.getElementById("selectrule");
         s.innerHTML = "重新开始";
+    },
+    // TODO 状态逻辑
+    displayOption: function(status) {
+        if (status == GAMING) {
+            let r = document.getElementById("pause_resume");
+            r.innerHTML = "暂停";
+        } else if (status == PAUSE) {
+            let r = document.getElementById("pause_resume");
+            r.innerHTML = "继续";
+        } else {
+            let r = document.getElementById("pause_resume");
+            r.innerHTML = "";
+        }
     }
 }
 
 var chessRule = {
+    status: STOP,
     timeleft: 30,
     timeout: null,
     type: null,
@@ -164,21 +194,31 @@ var chessRule = {
         }
         chessView.displayResult(result);
         return result;
+    },
+    // TODO 状态逻辑
+    changeStatus: function (event) {
+        if (this.status == GAMING && event == DO_PAUSE) {
+            this.status = PAUSE;
+        } else if (this.status == PAUSE && event == DO_RESUME) {
+            this.status = GAMING;
+        } else if (event == DO_STOP) {
+            this.status = STOP;
+        }
     }
+    // changeOperationStatus: function () {
+    //     if (this.status == PAUSE || this.status == STOP) {
+            
+    //     } else {
+
+    //     }
+    // }
 }
 
 // 初始化
 function chessInit() {
+    initProperties();
     chessView.displayMoney();
-    // chessView.displayRule();
-    capooCardsInPreparation = [];
-    capooCardsInPool = [];
-    // 卡池重置
-    for (let i = 0; i < chessModel.capooTypes; i++) {
-        for (let j = 0; j < chessModel.cardsNumPreCapoo; j++) {
-            capooCardsInPool.push(new Capoo(String(i), 1, 1));
-        }
-    }
+    initCards();
     // 初始化备战席和商店面板
     let preTr = document.getElementById("pretr");
     for (let i = 0; i < chessModel.preparationSize; i++) {
@@ -207,7 +247,10 @@ function chessInit() {
     selectRule.innerHTML = "开始";
     selectRule.addEventListener("click", 
     function() {
+        initProperties();
         initCards();
+        chessView.displayMoney();
+        chessView.displayPreCard();
         chessModel.generateShopCapoo();
         chessView.displayRule();
     }, 
@@ -216,7 +259,6 @@ function chessInit() {
 }
 
 function initCards() {
-    money = 200;
     capooCardsInPreparation = [];
     capooCardsInPool = [];
     capooCardsInShop = [new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0), new Capoo("X",0,0)];
@@ -226,9 +268,12 @@ function initCards() {
             capooCardsInPool.push(new Capoo(String(i), 1, 1));
         }
     }
-    chessView.displayMoney();
-    chessView.displayPreCard();
+    // chessView.displayPreCard();
     // chessView.displayShopCard();
+}
+
+function initProperties() {
+    money = 200;
 }
 
 function sell(index) {
